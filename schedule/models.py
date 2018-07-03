@@ -10,7 +10,6 @@ class sch(models.Model):
 
     class Meta:
         ordring=('id',)
-
     def __str__(self):
         return self.name
 
