@@ -8,10 +8,8 @@ class sch(models.Model):
     name=models.CharField(max_length=30)
     date=models.DateField()
 
-    class Meta:
-        ordring=('id',)
+    # class Meta:
+    #     ordring=('id',)
     def __str__(self):
         return self.name
 
-def tes():
-    pass
