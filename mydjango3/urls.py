@@ -23,5 +23,6 @@ urlpatterns = [
     path('api/products/<int:pk>/',views.products_detail),
     path('api/dutygroups/',views.dutygroups_list),
     path('api/dutygroups/<int:pk>/',views.dutygroups_detail),
-
+    path('api/dutypersons/',views.dutypersons_list),
+    path('api/dutypersons/<int:pk>/',views.dutypersons_detail)
 ]

@@ -1,16 +1,21 @@
-# from rest_framework import serializers
-# from schedule.models import sch
-#
-# class schSerializer(serializers.Serializer):
-#     id=serializers.IntegerField(read_only=True)
-#     name=serializers.CharField(max_length=20)
-#     date=serializers.DateField()
-#
-#     def create(self,validated_data):
-#         return sch.objects.create(**validated_data)
-#     def update(self,instance,validated_data):
-#         instance.id=validated_data.get('id',instance.id)
-#         instance.name=validated_data.get('name',instance.name)
-#         instance.date=validated_data.get('date',instance.date)
-#         instance.save()
-#         return instance
+from rest_framework import serializers,validators
+from schedule.models import products,dutygroups,persons
+
+class productsSerializers(serializers.ModelSerializer):
+    class Meta:
+        model=products
+        fields=('id','productname','dutymode',)
+    # def validate(self,attrs):
+
+class dutygroupsSerializers(serializers.ModelSerializer):
+    class Meta:
+        model=dutygroups
+
+        fields=('id','productname','groupname','startime',)
+
+
+
+class personsSerializers(serializers.ModelSerializer):
+    class Meta:
+        model=persons
+        fields=('id','productname','groupname','personname',)
