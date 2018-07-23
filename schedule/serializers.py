@@ -8,14 +8,18 @@ class productsSerializers(serializers.ModelSerializer):
     # def validate(self,attrs):
 
 class dutygroupsSerializers(serializers.ModelSerializer):
+    # tracks=serializers.CharField(source='productname')   #返回外键的真实值
+    productname=productsSerializers(read_only=False)   #返回外键的所有内容
+
     class Meta:
         model=dutygroups
-
         fields=('id','productname','groupname','startime',)
+        # depth=1     #返回一层外键的所有内容
 
 
 
 class personsSerializers(serializers.ModelSerializer):
+
     class Meta:
         model=persons
         fields=('id','productname','groupname','personname',)

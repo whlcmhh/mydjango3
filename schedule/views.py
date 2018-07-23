@@ -57,6 +57,7 @@ def dutygroups_list(request):
             serializer.save()
             return JsonResponse(serializer.data,status=201)
         else:
+            print(serializer.errors)
             return HttpResponse(status=500)
 
 
