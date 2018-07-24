@@ -9,7 +9,8 @@ class productsSerializers(serializers.ModelSerializer):
 
 class dutygroupsSerializers(serializers.ModelSerializer):
     # tracks=serializers.CharField(source='productname')   #返回外键的真实值
-    productname=productsSerializers(read_only=False)   #返回外键的所有内容
+    #productname=productsSerializers(read_only=False)   #返回外键的所有内容
+    # productname=serializers.PrimaryKeyRelatedField(read_only=True)
 
     class Meta:
         model=dutygroups
