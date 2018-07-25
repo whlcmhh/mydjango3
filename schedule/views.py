@@ -16,10 +16,12 @@ def products_list(request):
         return JsonResponse(products_list_json.data,safe=False)
     elif request.method == 'POST' :
         serializer=productsSerializers(data=request.data)
-        print(serializer)
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data,status=201)
+        else:
+            return JsonResponse(serializer.errors)
+
 
 
 @api_view(['GET','PUT','DELETE'])
@@ -39,6 +41,8 @@ def products_detail(request,pk):
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data,status=201)
+        else:
+            return JsonResponse(serializer.errors)
 
     if request.method == 'DELETE':
         product.delete()
@@ -57,8 +61,7 @@ def dutygroups_list(request):
             serializer.save()
             return JsonResponse(serializer.data,status=201)
         else:
-            print(serializer.errors)
-            return HttpResponse(status=500)
+            return JsonResponse(serializer.errors)
 
 
 @api_view(['GET','PUT','DELETE'])
@@ -76,6 +79,8 @@ def dutygroups_detail(request,pk):
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data,status=201)
+        else:
+            return JsonResponse(serializer.errors)
     if request.method == 'DELETE':
         dutygroup.delete()
         return HttpResponse(status=204)
@@ -83,10 +88,9 @@ def dutygroups_detail(request,pk):
 @api_view(['GET','POST'])
 def dutypersons_list(request):
     if request.method == 'GET' :
-        productid=request.GET.get('productid')
         dutygroupid=request.GET.get('dutygroupid')
-        dutyperson=dutygroups.objects.get(id=dutygroupid).persons_groupname.filter(productname=productid)
-        print(dutyperson)
+        # dutyperson=dutygroups.objects.get(id=dutygroupid).persons_groupname.all()
+        dutyperson=persons.objects.filter(groupname=dutygroupid)
         serializer=personsSerializers(dutyperson,many=True)
         return JsonResponse(serializer.data,safe=False)
     if request.method == 'POST':
@@ -94,6 +98,8 @@ def dutypersons_list(request):
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data)
+        else:
+            return  JsonResponse(serializer.errors)
 
 @api_view(['GET','DELETE'])
 def dutypersons_detail(request,pk):

@@ -5,7 +5,18 @@ class productsSerializers(serializers.ModelSerializer):
     class Meta:
         model=products
         fields=('id','productname','dutymode',)
-    # def validate(self,attrs):
+    # def validate(self,data):
+    #     if not data['dutymode']=='week' or data['dutymode'] == 'day' :
+    #         raise serializers.ValidationError('dutymode must be week or day')
+    #     return data
+    # def validate_productname(self,value):
+    #     if value in products.objects.values('productname'):
+    #         raise serializers.ValidationError('productname already exits')
+    #     return value
+    # def validate_dutymode(self,value):
+    #     if value!='week' and value !='day' :
+    #         raise serializers.ValidationError('dutymode must be week or day')
+    #     return value
 
 class dutygroupsSerializers(serializers.ModelSerializer):
     # tracks=serializers.CharField(source='productname')   #返回外键的真实值
@@ -23,4 +34,4 @@ class personsSerializers(serializers.ModelSerializer):
 
     class Meta:
         model=persons
-        fields=('id','productname','groupname','personname',)
+        fields=('id','groupname','personname',)
