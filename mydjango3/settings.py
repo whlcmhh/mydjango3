@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'schedule',
     'rest_framework',
+    'mydjango3',
 ]
 
 MIDDLEWARE = [
