@@ -21,5 +21,5 @@ class dutygroups(models.Model):
 
 
 class persons(models.Model):
-    groupname=models.ForeignKey('dutygroups',related_name='persons_groupname',on_delete=models.CASCADE)
+    groupname=models.ForeignKey('dutygroups',related_name='persons_personname',on_delete=models.CASCADE)
     personname=models.CharField(max_length=30)

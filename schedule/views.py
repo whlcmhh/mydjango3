@@ -1,12 +1,12 @@
 from django.shortcuts import render
 from django.http import HttpResponse,JsonResponse
 from django.core import serializers
-from schedule.serializers import products,productsSerializers,dutygroups,dutygroupsSerializers,persons,personsSerializers
+from schedule.serializers import products,productsSerializers,dutygroups,dutygroupsSerializers,persons,personsSerializers,dutygroupsDetailSerializers
 # from schedule.serializers import schSerializer
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
 from django.views.decorators.csrf import csrf_exempt
-from datetime import datetime,date
+from datetime import datetime,date,timedelta
 
 
 @api_view(['GET','POST'])
@@ -144,7 +144,7 @@ def dutylist(request,pk):
         #时间差小于7天，直接返回最近的值班组
         if startime_differ<=7 :
             dutygroups_inturn_week_ob=dutygroups.objects.filter(productname=pk).order_by('-startime')[0]
-            serializer=dutygroupsSerializers(dutygroups_inturn_week_ob)
+            serializer=dutygroupsDetailSerializers(dutygroups_inturn_week_ob)
             return JsonResponse(serializer.data,status=200)
         #时间差大于7天
         else:
@@ -155,7 +155,8 @@ def dutylist(request,pk):
             #轮到哪一天
             dutygroups_inturn_day=(startime_differ%(dutygruops_count*7))%7
             dutygroups_inturn_week_ob=dutygroups.objects.filter(startime__lt=duty_date,productname=pk).order_by('startime')[dutygroups_inturn_week]
-            serializer=dutygroupsSerializers(dutygroups_inturn_week_ob)
+            dutygroups_inturn_week_ob.startime=duty_date-timedelta(days=dutygroups_inturn_day)
+            serializer=dutygroupsDetailSerializers(dutygroups_inturn_week_ob)
             return JsonResponse(serializer.data,status=200)
 
 
