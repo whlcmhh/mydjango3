@@ -68,12 +68,26 @@ def dutygroups_list(request):
         if dutygroups.objects.filter(productname=data['productname']).exists():
             if not (data['startime'] - dutygroups.objects.filter(productname=data['productname']).first().startime).days % DUTY_CYCLE == 0:
                 return JsonResponse({'msg':'date is not legal'})
-        
+
         #先查看产品线内是否已有值班组
         if not dutygroups.objects.filter(productname=data['productname']).exists():
             serializer=dutygroupsSerializers(data=data)
         #新纪录的startime在所有的startime之前
         elif data['startime']<dutygroups.objects.filter(productname=data['productname']).order_by('startime').first().startime:
+            startime_new=dutygroups.objects.filter(productname=data['productname']).order_by('startime').first().startime
+            tmp = startime_new
+            cycle_num_sum=0
+            for i in dutygroups.objects.filter(productname=data['productname'], startime__gt=startime_new).order_by(
+                    'startime').all():
+                diff_btw = (i.startime - tmp).days - DUTY_CYCLE
+                print(diff_btw, 'diff_btw')
+                dutygroups_count = dutygroups.objects.filter(productname=data['productname'], startime__lte=tmp+timedelta(cycle_num_sum*DUTY_CYCLE)).count()
+                cycle_num = diff_btw // (dutygroups_count * DUTY_CYCLE)
+                tmp2 = i.startime
+                dutygroups.objects.filter(productname=data['productname'], startime__gt=tmp+timedelta(cycle_num_sum*DUTY_CYCLE)).update(
+                    startime=F('startime') + timedelta(cycle_num * DUTY_CYCLE))
+                cycle_num_sum=cycle_num_sum+cycle_num
+                tmp = tmp2
             serializer=dutygroupsSerializers(data=data)
         #在中间
         elif data['startime']<=dutygroups.objects.filter(productname=data['productname']).order_by('-startime').first().startime:
@@ -113,13 +127,15 @@ def dutygroups_list(request):
             if diff_after <=0 :
                 week_inturn_after=1
             tmp=startime_new
+            cycle_num_sum = 0
             for i in dutygroups.objects.filter(productname=data['productname'], startime__gt=startime_new).order_by('startime').all():
                 diff_btw=(i.startime-tmp).days-DUTY_CYCLE
                 print(diff_btw,'diff_btw')
-                dutygroups_count = dutygroups.objects.filter(productname=data['productname'],startime__lte=tmp).count()
+                dutygroups_count = dutygroups.objects.filter(productname=data['productname'],startime__lte=tmp+timedelta(cycle_num_sum*DUTY_CYCLE)).count()
                 cycle_num=diff_btw//(dutygroups_count*DUTY_CYCLE)
                 tmp2=i.startime
-                dutygroups.objects.filter(productname=data['productname'],startime__gt=tmp).update(startime=F('startime')+timedelta(cycle_num*DUTY_CYCLE))
+                dutygroups.objects.filter(productname=data['productname'],startime__gt=tmp+timedelta(cycle_num_sum*DUTY_CYCLE)).update(startime=F('startime')+timedelta(cycle_num*DUTY_CYCLE))
+                cycle_num_sum=cycle_num_sum+cycle_num
                 tmp=tmp2
 
             dutygroups.objects.filter(startime__gte=startime_new,productname=data['productname']).update(
@@ -203,6 +219,24 @@ def dutygroups_detail(request,pk):
                 serializer=dutygroupsSerializers(data=data)
             #新纪录的startime在所有的startime之前
             elif data['startime']<dutygroups.objects.filter(productname=data['productname']).order_by('startime').first().startime:
+                startime_new = dutygroups.objects.filter(productname=data['productname']).order_by(
+                    'startime').first().startime
+                tmp = startime_new
+                cycle_num_sum = 0
+                for i in dutygroups.objects.filter(productname=data['productname'], startime__gt=startime_new).order_by(
+                        'startime').all():
+                    diff_btw = (i.startime - tmp).days - DUTY_CYCLE
+                    print(diff_btw, 'diff_btw')
+                    dutygroups_count = dutygroups.objects.filter(productname=data['productname'],
+                                                                 startime__lte=tmp + timedelta(
+                                                                     cycle_num_sum * DUTY_CYCLE)).count()
+                    cycle_num = diff_btw // (dutygroups_count * DUTY_CYCLE)
+                    tmp2 = i.startime
+                    dutygroups.objects.filter(productname=data['productname'],
+                                              startime__gt=tmp + timedelta(cycle_num_sum * DUTY_CYCLE)).update(
+                        startime=F('startime') + timedelta(cycle_num * DUTY_CYCLE))
+                    cycle_num_sum = cycle_num_sum + cycle_num
+                    tmp = tmp2
                 serializer=dutygroupsSerializers(data=data)
             #在中间
             elif data['startime']<=dutygroups.objects.filter(productname=data['productname']).order_by('-startime').first().startime:
@@ -253,16 +287,18 @@ def dutygroups_detail(request,pk):
 
                     print(week_inturn_after,'week_inturn_after')
                     tmp = startime_new
+                    cycle_num_sum=0
                     for i in dutygroups.objects.filter(productname=data['productname'],
                                                        startime__gt=startime_new).order_by('startime').all():
                         diff_btw = (i.startime - tmp).days - DUTY_CYCLE
                         print(diff_btw,'diff_btw')
                         dutygroups_count = dutygroups.objects.filter(productname=data['productname'],
-                                                                     startime__lte=tmp).count()
+                                                                     startime__lte=tmp+timedelta(cycle_num_sum*DUTY_CYCLE)).count()
                         cycle_num = diff_btw // (dutygroups_count * DUTY_CYCLE)
                         tmp2 = i.startime
-                        dutygroups.objects.filter(productname=data['productname'], startime__gt=tmp).update(
+                        dutygroups.objects.filter(productname=data['productname'], startime__gt=tmp+timedelta(cycle_num_sum*DUTY_CYCLE)).update(
                             startime=F('startime') + timedelta(cycle_num * DUTY_CYCLE))
+                        cycle_num_sum = cycle_num_sum + cycle_num
                         tmp = tmp2
 
                     dutygroups.objects.filter(startime__gte=startime_new, productname=data['productname']).update(
@@ -330,6 +366,7 @@ def dutygroups_detail(request,pk):
                 print(startime_old,'startime_old')
                 print(startime_new,'startime_new')
                 tmp = startime_new
+                cycle_num_sum=0
                 for i in dutygroups.objects.filter(productname=data['productname'],
                                                    startime__gt=startime_new).order_by('startime').all():
                     print(i.startime,'i.startime')
@@ -337,12 +374,13 @@ def dutygroups_detail(request,pk):
                     diff_btw = (i.startime - tmp).days - DUTY_CYCLE
                     print(diff_btw,'diff_btw2')
                     dutygroups_count = dutygroups.objects.filter(productname=data['productname'],
-                                                                 startime__lte=tmp).count()
+                                                                 startime__lte=tmp-timedelta(cycle_num_sum*DUTY_CYCLE)).count()
                     cycle_num = diff_btw // (dutygroups_count * DUTY_CYCLE)
                     print('yushu',diff_btw % (dutygroups_count * DUTY_CYCLE))
                     tmp2 = i.startime
-                    dutygroups.objects.filter(productname=data['productname'], startime__gt=tmp).update(
+                    dutygroups.objects.filter(productname=data['productname'], startime__gt=tmp-timedelta(cycle_num_sum*DUTY_CYCLE)).update(
                         startime=F('startime') - timedelta(cycle_num * DUTY_CYCLE))
+                    cycle_num_sum = cycle_num_sum + cycle_num
                     tmp = tmp2
                 print(week_num_after,'week_num_after')
                 dutygroups.objects.filter(productname=data['productname'], startime__gt=startime_old).update(
@@ -369,15 +407,17 @@ def dutygroups_detail(request,pk):
             week_num_after = (diff - DUTY_CYCLE) // (DUTY_CYCLE * dutygroups_count)
             startime_new = dutygroups.objects.filter(productname=pid,startime__gt=dutygroup.startime).order_by('startime').first().startime
             tmp=startime_new
+            cycle_num_sum=0
             for i in dutygroups.objects.filter(productname=pid,
                                                startime__gt=startime_new).order_by('startime').all():
                 diff_btw = (i.startime - tmp).days - DUTY_CYCLE
                 dutygroups_count = dutygroups.objects.filter(productname=pid,
-                                                             startime__lte=tmp).count()
+                                                             startime__lte=tmp-timedelta(cycle_num_sum*DUTY_CYCLE)).count()
                 cycle_num = diff_btw // (dutygroups_count * DUTY_CYCLE)
                 tmp2 = i.startime
-                dutygroups.objects.filter(productname=pid, startime__gt=tmp).update(
+                dutygroups.objects.filter(productname=pid, startime__gt=tmp-timedelta(cycle_num_sum*DUTY_CYCLE)).update(
                     startime=F('startime') - timedelta(cycle_num * DUTY_CYCLE))
+                cycle_num_sum = cycle_num_sum + cycle_num
                 tmp = tmp2
             dutygroups.objects.filter(productname=pid,startime__gt=dutygroup.startime).update(startime=F('startime')-timedelta((week_num_after+1)*DUTY_CYCLE))
         return HttpResponse(status=204)
