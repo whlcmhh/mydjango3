@@ -17,6 +17,12 @@ class dutygroups(models.Model):
     startime = models.DateField()
     class Meta:
         unique_together=('productname','groupname')
+    # @property
+    # def productname_name(self):
+    #     return self.productname.productname
+
+
+
 
 
 

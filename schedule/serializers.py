@@ -19,15 +19,26 @@ class productsSerializers(serializers.ModelSerializer):
     #     return value
 
 class dutygroupsSerializers(serializers.ModelSerializer):
-    # tracks=serializers.CharField(source='productname')   #返回外键的真实值
+    # productname=serializers.CharField(source='productname.productname')   #返回外键的真实值
     #productname=productsSerializers(read_only=False)   #返回外键的所有内容
-    # productname=serializers.PrimaryKeyRelatedField(read_only=True)
-
+    # productname_name=serializers.PrimaryKeyRelatedField(many=True,read_only=True)
+    # productname_name=serializers.ReadOnlyField()
     class Meta:
         model=dutygroups
         fields=('id','productname','groupname','startime',)
         # depth=1     #返回一层外键的所有内容
-
+        def validate(self,data):
+            if products.objects.get(id=data['productname']).dutymode == 'week':
+                DUTY_CYCLE = 7
+            elif products.objects.get(id=data['productname']).dutymode == 'day':
+                DUTY_CYCLE = 1
+            if dutygroups.objects.all().exists():
+                if (data['startime']-dutygroups.objects.all().first().startime)%DUTY_CYCLE == 0:
+                    return data
+                else:
+                    raise serializers.ValidationError('startime不合法')
+            else:
+                return data
 
 
 
@@ -38,11 +49,7 @@ class personsSerializers(serializers.ModelSerializer):
         fields=('id','groupname','personname',)
 
 class dutygroupsDetailSerializers(serializers.ModelSerializer):
-    # tracks=serializers.CharField(source='productname')   #返回外键的真实值
-    #productname=productsSerializers(read_only=False)   #返回外键的所有内容
-    # productname=serializers.PrimaryKeyRelatedField(read_only=True)
     persons_personname=personsSerializers(many=True,read_only=True)
     class Meta:
         model=dutygroups
         fields=('id','productname','groupname','startime','persons_personname')
-        # depth=1     #返回一层外键的所有内容
