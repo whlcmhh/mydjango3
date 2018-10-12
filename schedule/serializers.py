@@ -25,20 +25,20 @@ class dutygroupsSerializers(serializers.ModelSerializer):
     # productname_name=serializers.ReadOnlyField()
     class Meta:
         model=dutygroups
-        fields=('id','productname','groupname','startime',)
+        fields=('id','productname','groupname','startime','worktime',)
         # depth=1     #返回一层外键的所有内容
-        def validate(self,data):
-            if products.objects.get(id=data['productname']).dutymode == 'week':
-                DUTY_CYCLE = 7
-            elif products.objects.get(id=data['productname']).dutymode == 'day':
-                DUTY_CYCLE = 1
-            if dutygroups.objects.all().exists():
-                if (data['startime']-dutygroups.objects.all().first().startime)%DUTY_CYCLE == 0:
-                    return data
-                else:
-                    raise serializers.ValidationError('startime不合法')
-            else:
-                return data
+        # def validate(self,data):
+        #     if products.objects.get(id=data['productname']).dutymode == 'week':
+        #         DUTY_CYCLE = 7
+        #     elif products.objects.get(id=data['productname']).dutymode == 'day':
+        #         DUTY_CYCLE = 1
+        #     if dutygroups.objects.all().exists():
+        #         if (data['startime']-dutygroups.objects.all().first().startime)%DUTY_CYCLE == 0:
+        #             return data
+        #         else:
+        #             raise serializers.ValidationError('startime不合法')
+        #     else:
+        #         return data
 
 
 
@@ -52,4 +52,4 @@ class dutygroupsDetailSerializers(serializers.ModelSerializer):
     persons_personname=personsSerializers(many=True,read_only=True)
     class Meta:
         model=dutygroups
-        fields=('id','productname','groupname','startime','persons_personname')
+        fields=('id','productname','groupname','startime','persons_personname','worktime',)

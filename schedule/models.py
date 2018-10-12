@@ -6,15 +6,18 @@ from django.db import models
 
 
 class products(models.Model):
-    MODE_CHOICES=(('week','周'),('day','日'),)
+    MODE_CHOICES=(('week','周'),('day','日'),('ops','运维'))
     productname=models.CharField(max_length=30,unique=True)
     dutymode=models.CharField(max_length=30,choices=MODE_CHOICES,default='week')
 
 
 class dutygroups(models.Model):
+    MODE_CHOICES = (('weekend', '周末'), ('weekday', '工作日'),)
     productname=models.ForeignKey('products',on_delete=models.CASCADE)
     groupname=models.CharField(max_length=30)
     startime = models.DateField()
+    worktime=models.CharField(max_length=30,choices=MODE_CHOICES,blank=True,null=True)
+
     class Meta:
         unique_together=('productname','groupname')
     # @property
