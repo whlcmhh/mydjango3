@@ -659,6 +659,8 @@ def dutyexchange(request):
         groupid_af=int(request.data.get('groupid_af'))
         groupid_bf_ob=dutygroups.objects.get(id=groupid_bf)
         groupid_af_ob=dutygroups.objects.get(id=groupid_af)
+        if not groupid_af_ob.worktime == groupid_bf_ob.worktime :
+            return JsonResponse({"msg":"exchange between groups must be the same worktime"})
         tmp=groupid_bf_ob.startime
         groupid_bf_ob.startime=groupid_af_ob.startime
         groupid_af_ob.startime=tmp
