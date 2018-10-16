@@ -61,11 +61,11 @@ def dutygroups_list(request):
         data=request.data
         if products.objects.get(id=data['productname']).dutymode == 'ops' :
             if dutygroups.objects.filter(productname=data['productname'], groupname=data['groupname']).exists():
-                return JsonResponse({'msg': 'groupname must be unique'})
+                return JsonResponse({'msg': 'groupname must be unique'},status=500)
             if datetime.strptime(data['startime'],'%Y-%m-%d').date().weekday()<5 and data['worktime'] == 'weekend':
-                return  JsonResponse({"msg":"date is not legal"})
+                return  JsonResponse({"msg":"date is not legal"},status=500)
             if datetime.strptime(data['startime'],'%Y-%m-%d').date().weekday()>4 and data['worktime'] == 'weekday' :
-                return  JsonResponse({"msg":"date is not legal"})
+                return  JsonResponse({"msg":"date is not legal"},status=500)
             serializer=dutygroupsSerializers(data=data)
             if serializer.is_valid():
                 serializer.save()
@@ -74,14 +74,14 @@ def dutygroups_list(request):
                 return JsonResponse(serializer.errors)
         data['startime']=datetime.strptime(data['startime'],'%Y-%m-%d').date()
         if dutygroups.objects.filter(productname=data['productname'],groupname=data['groupname']).exists():
-            return JsonResponse({'msg':'groupname must be unique'})
+            return JsonResponse({'msg':'groupname must be unique'},status=500)
         if products.objects.get(id=data['productname']).dutymode == 'week' :
             DUTY_CYCLE=7
         elif products.objects.get(id=data['productname']).dutymode == 'day':
             DUTY_CYCLE=1
         if dutygroups.objects.filter(productname=data['productname']).exists():
             if not (data['startime'] - dutygroups.objects.filter(productname=data['productname']).first().startime).days % DUTY_CYCLE == 0:
-                return JsonResponse({'msg':'date is not legal'})
+                return JsonResponse({'msg':'date is not legal'},status=500)
 
         #先查看产品线内是否已有值班组
         if not dutygroups.objects.filter(productname=data['productname']).exists():
@@ -209,12 +209,12 @@ def dutygroups_detail(request,pk):
         #                                              startime__lte=startime_old).count()
         data['startime']=datetime.strptime(data['startime'],'%Y-%m-%d').date()
         if dutygroups.objects.filter(productname=data['productname'],groupname=data['groupname']).exclude(pk=pk).exists():
-            return JsonResponse({'msg':'groupname must be unique'})
+            return JsonResponse({'msg':'groupname must be unique'},status=500)
         if products.objects.get(id=pid).dutymode == 'ops' :
             if data['startime'].weekday()<5 and data['worktime'] == 'weekend':
-                return  JsonResponse({"msg":"date is not legal"})
+                return  JsonResponse({"msg":"date is not legal"},status=500)
             if data['startime'].weekday()>4 and data['worktime'] == 'weekday' :
-                return  JsonResponse({"msg":"date is not legal"})
+                return  JsonResponse({"msg":"date is not legal"},status=500)
             serializer=dutygroupsSerializers(dutygroup,data=data)
             if serializer.is_valid():
                 serializer.save()
@@ -226,7 +226,7 @@ def dutygroups_detail(request,pk):
         elif products.objects.get(id=pid).dutymode == 'day':
             DUTY_CYCLE = 1
         if not (data['startime'] - dutygroups.objects.filter(productname=data['productname']).first().startime).days % DUTY_CYCLE == 0:
-            return JsonResponse({'msg':'date is not legal'})
+            return JsonResponse({'msg':'date is not legal'},status=500)
         #查看修改的日期和已有日期是否重合
         group_already=dutygroups.objects.filter(productname=data['productname'], startime=data['startime'])
         if dutygroups.objects.filter(productname=data['productname'], startime=data['startime']).exists():
