@@ -60,6 +60,12 @@ def dutygroups_list(request):
     if request.method == 'POST' :
         data=request.data
         if products.objects.get(id=data['productname']).dutymode == 'ops' :
+            if dutygroups.objects.filter(productname=data['productname'], groupname=data['groupname']).exists():
+                return JsonResponse({'msg': 'groupname must be unique'})
+            if datetime.strptime(data['startime'],'%Y-%m-%d').date().weekday()<5 and data['worktime'] == 'weekend':
+                return  JsonResponse({"msg":"date is not legal"})
+            if datetime.strptime(data['startime'],'%Y-%m-%d').date().weekday()>4 and data['worktime'] == 'weekday' :
+                return  JsonResponse({"msg":"date is not legal"})
             serializer=dutygroupsSerializers(data=data)
             if serializer.is_valid():
                 serializer.save()
@@ -205,6 +211,10 @@ def dutygroups_detail(request,pk):
         if dutygroups.objects.filter(productname=data['productname'],groupname=data['groupname']).exclude(pk=pk).exists():
             return JsonResponse({'msg':'groupname must be unique'})
         if products.objects.get(id=pid).dutymode == 'ops' :
+            if data['startime'].weekday()<5 and data['worktime'] == 'weekend':
+                return  JsonResponse({"msg":"date is not legal"})
+            if data['startime'].weekday()>4 and data['worktime'] == 'weekday' :
+                return  JsonResponse({"msg":"date is not legal"})
             serializer=dutygroupsSerializers(dutygroup,data=data)
             if serializer.is_valid():
                 serializer.save()
