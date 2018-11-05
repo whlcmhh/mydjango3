@@ -9,6 +9,8 @@ class products(models.Model):
     MODE_CHOICES=(('week','周'),('day','日'),('ops','运维'))
     productname=models.CharField(max_length=30,unique=True)
     dutymode=models.CharField(max_length=30,choices=MODE_CHOICES,default='week')
+    loopcode=models.IntegerField(default=0)
+    modifytime=models.DateField(null=True,blank=True,default='2018-01-01')
 
 
 class dutygroups(models.Model):
@@ -24,11 +26,11 @@ class dutygroups(models.Model):
     # def productname_name(self):
     #     return self.productname.productname
 
-
-
-
-
-
 class persons(models.Model):
     groupname=models.ForeignKey('dutygroups',related_name='persons_personname',on_delete=models.CASCADE)
     personname=models.CharField(max_length=30)
+
+class dutytmp(models.Model):
+    personname=models.CharField(max_length=30)
+    startime=models.DateField()
+    productname=models.ForeignKey('products',on_delete=models.CASCADE)

@@ -1,10 +1,10 @@
 from rest_framework import serializers,validators
-from schedule.models import products,dutygroups,persons
+from schedule.models import products,dutygroups,persons,dutytmp
 
 class productsSerializers(serializers.ModelSerializer):
     class Meta:
         model=products
-        fields=('id','productname','dutymode',)
+        fields=('id','productname','dutymode','loopcode','modifytime',)
     # def validate(self,data):
     #     if not data['dutymode']=='week' or data['dutymode'] == 'day' :
     #         raise serializers.ValidationError('dutymode must be week or day')
@@ -53,3 +53,8 @@ class dutygroupsDetailSerializers(serializers.ModelSerializer):
     class Meta:
         model=dutygroups
         fields=('id','productname','groupname','startime','persons_personname','worktime',)
+
+class dutytmpSerializers(serializers.ModelSerializer):
+    class Meta:
+        model=dutytmp
+        fields=('id','productname','startime','personname',)
