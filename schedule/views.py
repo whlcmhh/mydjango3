@@ -280,11 +280,6 @@ def dutylist(request,pk):
             products_object.modifytime=modifytime
             products_object.save()
 
-        # 查看按周还是按日
-        if products.objects.get(id=pk).dutymode == 'week' :
-            DUTY_CYCLE=7
-        elif products.objects.get(id=pk).dutymode == 'day':
-            DUTY_CYCLE=1
 
         List=[]
         i=0
@@ -319,43 +314,6 @@ def dutylist(request,pk):
 
         return JsonResponse(List,safe=False)
 
-@api_view(['GET',])
-def dutyday(request,pk):
-    if request.method == 'GET':
-        #查找对应产品线
-        if not dutygroups.objects.filter(productname=pk).exists():
-            return JsonResponse({"msg":"dutygroup is null"})
-        #取得值班日期
-        duty_date = request.GET.get('date')
-        if duty_date is None:
-            duty_date = datetime.now().date()
-        else:
-            duty_date = datetime.strptime(duty_date, '%Y-%m-%d').date()
-        # 查看当前生效的值班组
-        if duty_date < dutygroups.objects.filter(productname=pk).only('startime').order_by('startime')[0].startime:
-            return JsonResponse({"msg": "dutylist is null"})
-        # 查看按周还是按日
-        if products.objects.get(id=pk).dutymode == 'week':
-            DUTY_CYCLE = 7
-        elif products.objects.get(id=pk).dutymode == 'day':
-            DUTY_CYCLE = 1
-        # 最近的一个值班组的开始时间
-        startime_last = dutygroups.objects.filter(startime__lte=duty_date, productname=pk).only('startime').order_by('-startime')[0].startime
-        # 当前时间和和最近一个值班组的开始时间时间差
-        startime_differ = (duty_date - startime_last).days
-        if startime_differ < DUTY_CYCLE :
-            dutygroups_inturn_week_ob = dutygroups.objects.filter(startime__lte=duty_date, productname=pk).order_by('-startime')[0]
-            dutygroups_inturn_week_ob.startime = duty_date
-            serializer = dutygroupsDetailSerializers(dutygroups_inturn_week_ob)
-        else:
-            dutygruops_count = dutygroups.objects.filter(startime__lt=duty_date, productname=pk).count()
-            startime_differ = startime_differ + DUTY_CYCLE
-            # 轮到哪一周
-            dutygroups_inturn_week = (startime_differ % (dutygruops_count * DUTY_CYCLE)) // DUTY_CYCLE
-            dutygroups_inturn_week_ob = dutygroups.objects.filter(startime__lt=duty_date, productname=pk).order_by('startime')[dutygroups_inturn_week]
-            dutygroups_inturn_week_ob.startime = duty_date
-            serializer = dutygroupsDetailSerializers(dutygroups_inturn_week_ob)
-        return JsonResponse(serializer.data,safe=False)
 
 @api_view(['PUT',])
 def dutyexchange(request):

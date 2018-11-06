@@ -26,7 +26,6 @@ urlpatterns = [
     path('api/dutypersons/',views.dutypersons_list),
     path('api/dutypersons/<int:pk>/',views.dutypersons_detail),
     path('api/dutylist/<int:pk>/',views.dutylist),
-    path('api/dutyday/<int:pk>/',views.dutyday),
     path('api/dutyex/',views.dutyexchange),
     path('api/dutytmp/',views.dutytmp_post),
     path('api/dutytmp/<int:pk>/',views.dutytmp_delete),
