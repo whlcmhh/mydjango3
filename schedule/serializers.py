@@ -53,7 +53,7 @@ class personsfffSerializers(serializers.ModelSerializer):
 
     class Meta:
         model=persons
-        fields=('id','groupname','personname',)
+        fields=('id','personname',)
         depth=1
 
 class dutygroupsDetailSerializers(serializers.ModelSerializer):
