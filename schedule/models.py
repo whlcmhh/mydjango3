@@ -36,7 +36,7 @@ class persondetail(models.Model):
     productname=models.ForeignKey('products',on_delete=models.CASCADE)
     mobilephone=models.CharField(max_length=11,blank=True)
     email=models.EmailField(blank=True)
-    QQ=models.IntegerField(blank=True)
+    QQ=models.CharField(max_length=30,blank=True)
 
 class persons(models.Model):
     groupname=models.ForeignKey('dutygroups',related_name='persons_personname',on_delete=models.CASCADE)
