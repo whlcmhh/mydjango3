@@ -1,5 +1,5 @@
 from rest_framework import serializers,validators
-from schedule.models import products,dutygroups,persons,dutytmp
+from schedule.models import products,dutygroups,persons,dutytmp,persondetail
 
 class productsSerializers(serializers.ModelSerializer):
     class Meta:
@@ -48,8 +48,16 @@ class personsSerializers(serializers.ModelSerializer):
         model=persons
         fields=('id','groupname','personname',)
 
+
+class personsfffSerializers(serializers.ModelSerializer):
+
+    class Meta:
+        model=persons
+        fields=('id','groupname','personname',)
+        depth=1
+
 class dutygroupsDetailSerializers(serializers.ModelSerializer):
-    persons_personname=personsSerializers(many=True,read_only=True)
+    persons_personname=personsfffSerializers(many=True,read_only=True)
     class Meta:
         model=dutygroups
         fields=('id','productname','groupname','startime','persons_personname','worktime',)
@@ -58,3 +66,16 @@ class dutytmpSerializers(serializers.ModelSerializer):
     class Meta:
         model=dutytmp
         fields=('id','productname','startime','personname',)
+
+class persondetailSerializers(serializers.ModelSerializer):
+    class Meta:
+        model=persondetail
+        fields=('id','personname','productname','mobilephone','email','QQ',)
+
+
+# class personsfkSerializers(serializers.ModelSerializer):
+#     persondetail_set=persondetailSerializers(many=True,read_only=True)
+#     class Meta:
+#         model=persons
+#         fields=('id','groupname','personname','persondetail_set')
+

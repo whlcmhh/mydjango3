@@ -1,8 +1,8 @@
 from django.shortcuts import render
 from django.http import HttpResponse,JsonResponse
 from django.core import serializers
-from schedule.serializers import products,productsSerializers,dutygroups,dutygroupsSerializers,persons,personsSerializers,dutygroupsDetailSerializers,dutytmpSerializers
-from schedule.models import dutytmp
+from schedule.serializers import productsSerializers,dutygroupsSerializers,personsSerializers,dutygroupsDetailSerializers,dutytmpSerializers,persondetailSerializers
+from schedule.models import dutytmp,persondetail,persons,dutygroups,products
 # from schedule.serializers import schSerializer
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import api_view
@@ -177,6 +177,34 @@ def dutypersons_detail(request,pk):
         return JsonResponse(serializer.data,status=200)
     if request.method == 'DELETE' :
         person.delete()
+        return HttpResponse(status=204)
+
+@api_view(['GET','POST'])
+def persondetail_post(request):
+    if request.method == 'GET':
+        productid=request.GET.get('productid')
+        persondetail_ob=persondetail.objects.filter(productname=productid)
+        serializer=persondetailSerializers(persondetail_ob,many=True)
+        return JsonResponse(serializer.data,status=200)
+    if request.method == 'POST' :
+        serializer=persondetailSerializers(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return JsonResponse(serializer.data,status=200)
+        else:
+            return JsonResponse(serializer.errors,status=500)
+
+@api_view(['GET','DELETE'])
+def persondetail_delete(request,pk):
+    try:
+        persondetail_ob=persondetail.objects.get(id=pk)
+    except persondetail_ob.DoesNotExist:
+        return HttpResponse(status=404)
+    if request.method == 'GET':
+        serializer=persondetailSerializers(persondetail_ob)
+        return JsonResponse(serializer.data,status=200)
+    if request.method == 'DELETE' :
+        persondetail_ob.delete()
         return HttpResponse(status=204)
 
 @api_view(['GET',])

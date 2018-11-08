@@ -29,5 +29,7 @@ urlpatterns = [
     path('api/dutyex/',views.dutyexchange),
     path('api/dutytmp/',views.dutytmp_post),
     path('api/dutytmp/<int:pk>/',views.dutytmp_delete),
+    path('api/persondetail/',views.persondetail_post),
+    path('api/persondetail/<int:pk>/',views.persondetail_delete),
 
 ]

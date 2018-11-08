@@ -26,11 +26,18 @@ class dutygroups(models.Model):
     # def productname_name(self):
     #     return self.productname.productname
 
-class persons(models.Model):
-    groupname=models.ForeignKey('dutygroups',related_name='persons_personname',on_delete=models.CASCADE)
-    personname=models.CharField(max_length=30)
-
 class dutytmp(models.Model):
     personname=models.CharField(max_length=30)
     startime=models.DateField()
     productname=models.ForeignKey('products',on_delete=models.CASCADE)
+
+class persondetail(models.Model):
+    personname=models.CharField(max_length=30,unique=True)
+    productname=models.ForeignKey('products',on_delete=models.CASCADE)
+    mobilephone=models.CharField(max_length=11,blank=True)
+    email=models.EmailField(blank=True)
+    QQ=models.IntegerField(blank=True)
+
+class persons(models.Model):
+    groupname=models.ForeignKey('dutygroups',related_name='persons_personname',on_delete=models.CASCADE)
+    personname=models.ForeignKey('persondetail',related_name='persondetail_set',to_field='personname',on_delete=models.CASCADE)
