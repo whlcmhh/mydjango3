@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse,JsonResponse
 from django.core import serializers
-from schedule.serializers import productsSerializers,dutygroupsSerializers,personsSerializers,dutygroupsDetailSerializers,dutytmpSerializers,persondetailSerializers
+from schedule.serializers import dutytmpfffSerializers,productsSerializers,dutygroupsSerializers,personsSerializers,dutygroupsDetailSerializers,dutytmpSerializers,persondetailSerializers
 from schedule.models import dutytmp,persondetail,persons,dutygroups,products
 # from schedule.serializers import schSerializer
 from rest_framework.parsers import JSONParser
@@ -242,7 +242,11 @@ def dutylist(request,pk):
                 if dutytmp.objects.filter(startime=duty_date, productname=pk).exists():
                     list_dutytmp_persons = []
                     for dutytmp_ob in dutytmp.objects.filter(startime=duty_date, productname=pk):
-                        dict_dutytmp_person = {"personname": dutytmp_ob.personname}
+                        persondetail_tmp = dutytmp_ob.personname
+                        dict_dutytmp_person = {"personname": {"personname": persondetail_tmp.personname,
+                                                              "mobilephone": persondetail_tmp.mobilephone, \
+                                                              "email": persondetail_tmp.email,
+                                                              "QQ": persondetail_tmp.QQ}}
                         list_dutytmp_persons.append(dict_dutytmp_person)
                     dict_dutytmp = {"productname": pk, "startime": duty_date,
                                     "persons_personname": list_dutytmp_persons}
@@ -315,11 +319,14 @@ def dutylist(request,pk):
             if dutytmp.objects.filter(startime=duty_date, productname=pk).exists():
                 list_dutytmp_persons = []
                 for dutytmp_ob in dutytmp.objects.filter(startime=duty_date, productname=pk):
-                    dict_dutytmp_person = {"personname": dutytmp_ob.personname}
+                    persondetail_tmp=dutytmp_ob.personname
+                    dict_dutytmp_person = {"personname": {"personname":persondetail_tmp.personname,"mobilephone":persondetail_tmp.mobilephone,\
+                                           "email":persondetail_tmp.email,"QQ":persondetail_tmp.QQ}}
                     list_dutytmp_persons.append(dict_dutytmp_person)
-                dict_dutytmp = {"productname": pk, "startime": duty_date, "persons_personname": list_dutytmp_persons}
+                dict_dutytmp = {"productname": pk, "startime": duty_date,
+                                "persons_personname": list_dutytmp_persons}
                 List.append(dict_dutytmp)
-                i=i+1
+                i = i + 1
                 duty_date = duty_date + timedelta(days=1)
                 continue
             try:

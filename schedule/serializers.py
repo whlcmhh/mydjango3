@@ -67,12 +67,18 @@ class dutytmpSerializers(serializers.ModelSerializer):
         model=dutytmp
         fields=('id','productname','startime','personname',)
 
+
+
 class persondetailSerializers(serializers.ModelSerializer):
     class Meta:
         model=persondetail
         fields=('id','personname','productname','mobilephone','email','QQ',)
 
-
+class dutytmpfffSerializers(serializers.ModelSerializer):
+    personname=persondetailSerializers(many=True,read_only=True)
+    class Meta:
+        model=dutytmp
+        fields=('id','productname','startime','personname',)
 # class personsfkSerializers(serializers.ModelSerializer):
 #     persondetail_set=persondetailSerializers(many=True,read_only=True)
 #     class Meta:

@@ -27,7 +27,7 @@ class dutygroups(models.Model):
     #     return self.productname.productname
 
 class dutytmp(models.Model):
-    personname=models.CharField(max_length=30)
+    personname=models.ForeignKey('persondetail',to_field='personname',on_delete=models.CASCADE)
     startime=models.DateField()
     productname=models.ForeignKey('products',on_delete=models.CASCADE)
 
