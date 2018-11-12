@@ -185,14 +185,14 @@ def persondetail_post(request):
         productid=request.GET.get('productid')
         persondetail_ob=persondetail.objects.filter(productname=productid)
         serializer=persondetailSerializers(persondetail_ob,many=True)
-        return JsonResponse(serializer.data,status=200)
+        return JsonResponse(serializer.data,status=200,safe=False)
     if request.method == 'POST' :
         serializer=persondetailSerializers(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data,status=200)
+            return JsonResponse(serializer.data,status=200,safe=False)
         else:
-            return JsonResponse(serializer.errors,status=500)
+            return JsonResponse(serializer.errors,status=500,safe=False)
 
 @api_view(['GET','DELETE'])
 def persondetail_delete(request,pk):
@@ -202,7 +202,7 @@ def persondetail_delete(request,pk):
         return HttpResponse(status=404)
     if request.method == 'GET':
         serializer=persondetailSerializers(persondetail_ob)
-        return JsonResponse(serializer.data,status=200)
+        return JsonResponse(serializer.data,status=200,safe=False)
     if request.method == 'DELETE' :
         persondetail_ob.delete()
         return HttpResponse(status=204)
@@ -376,9 +376,9 @@ def dutytmp_post(request):
         serializer=dutytmpSerializers(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return JsonResponse(serializer.data,status=200)
+            return JsonResponse(serializer.data,status=200,safe=False)
         else:
-            return JsonResponse(serializer.errors,status=500)
+            return JsonResponse(serializer.errors,status=500,safe=False)
 
 
 @api_view(['DELETE',])
