@@ -204,6 +204,8 @@ def persondetail_delete(request,pk):
         serializer=persondetailSerializers(persondetail_ob)
         return JsonResponse(serializer.data,status=200,safe=False)
     if request.method == 'DELETE' :
+        persondetail_ob.persondetail_tmp.all().delete()
+        persondetail_ob.persondetail_set.all().delete()
         persondetail_ob.delete()
         return HttpResponse(status=204)
 
