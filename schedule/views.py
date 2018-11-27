@@ -384,7 +384,7 @@ def dutytmp_post(request):
 @api_view(['DELETE',])
 def dutytmp_delete(request,pk):
     if request.method == 'DELETE' :
-        datetmp=request.GET('datetmp')
+        datetmp = request.GET.get('datetmp')
         datetmp = datetime.strptime(datetmp, '%Y-%m-%d').date()
         if datetmp is None :
             return HttpResponse(status=500)
