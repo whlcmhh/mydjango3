@@ -385,6 +385,7 @@ def dutytmp_post(request):
 def dutytmp_delete(request,pk):
     if request.method == 'DELETE' :
         datetmp=request.GET('datetmp')
+        datetmp = datetime.strptime(datetmp, '%Y-%m-%d').date()
         if datetmp is None :
             return HttpResponse(status=500)
         dutytmp.objects.filter(productname=pk,startime=datetmp).delete()
