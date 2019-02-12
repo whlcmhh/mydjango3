@@ -91,9 +91,6 @@ def dutygroups_list(request):
                 products_object.loopcode=loopcode+1
                 products_object.save()
             serializer=dutygroupsSerializers(data=data)
-
-
-
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data,status=201)
@@ -300,12 +297,23 @@ def dutylist(request,pk):
 
         loopcode = products.objects.get(id=pk).loopcode
         modifytime = products.objects.get(id=pk).modifytime
+        #取来轮询次序后计算dutydate的次序
+        diff_now_first = (duty_date - dutygroups.objects.filter(productname=pk).order_by(
+            'startime')[0].startime).days
         while (modifytime < duty_date):
-            if loopcode < dutygroups.objects.filter(productname_id=pk).count() - 1:
+            if products.objects.get(id=pk).dutymode == 'week':
+                if  loopcode < dutygroups.objects.filter(productname_id=pk,startime__lte=duty_date).count() :
+                    if diff_now_first % 7 == 6 :
+                        loopcode = loopcode + 1
+                        if loopcode == dutygroups.objects.filter(productname_id=pk,startime__lte=duty_date).count():
+                            loopcode = 0
+                diff_now_first = diff_now_first - 1
+            elif loopcode < dutygroups.objects.filter(productname_id=pk,startime__lte=duty_date).count() - 1:
                 loopcode = loopcode + 1
             else:
                 loopcode = 0
             modifytime = modifytime + timedelta(days=1)
+        #日期是今天的话就保存次序
         if duty_date == datetime.now().date() and products.objects.get(id=pk).modifytime<modifytime:
             products_object=products.objects.get(id=pk)
             products_object.loopcode=loopcode
@@ -338,7 +346,15 @@ def dutylist(request,pk):
                 continue
             dutygroup_ob=dutygroups.objects.filter(productname=pk,startime__lte=duty_date).order_by('startime')[loopcode]
             dutygroup_ob.startime=duty_date
-            if loopcode < dutygroups.objects.filter(productname_id=pk,startime__lte=duty_date).count() - 1:
+            # 当前日期减去第一个组的 看是第几天 决定是否+1  满了整个循环 归0
+            if  products.objects.get(id=pk).dutymode == 'week':
+                diff_now_first=(duty_date-dutygroups.objects.filter(productname=pk).order_by('startime')[0].startime).days
+                if loopcode < dutygroups.objects.filter(productname_id=pk,startime__lte=duty_date).count() :
+                    if diff_now_first % 7 == 6 :
+                        loopcode = loopcode + 1
+                        if loopcode == dutygroups.objects.filter(productname_id=pk,startime__lte=duty_date).count():
+                            loopcode = 0
+            elif loopcode < dutygroups.objects.filter(productname_id=pk,startime__lte=duty_date).count() - 1:
                 loopcode = loopcode + 1
             else:
                 loopcode = 0
